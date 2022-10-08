@@ -1,15 +1,18 @@
 package com.example.project4.locationreminders.reminderslist
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import com.example.project4.R
+import com.example.project4.authentication.AuthenticationActivity
 import com.example.project4.databinding.FragmentRemindersBinding
 import com.example.project4.base.BaseFragment
 import com.example.project4.base.NavigationCommand
 import com.example.project4.utils.setDisplayHomeAsUpEnabled
 import com.example.project4.utils.setTitle
 import com.example.project4.utils.setup
+import com.firebase.ui.auth.AuthUI
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ReminderListFragment : BaseFragment() {
@@ -72,6 +75,10 @@ class ReminderListFragment : BaseFragment() {
         when (item.itemId) {
             R.id.logout -> {
 //                TODO: add the logout implementation
+                AuthUI.getInstance().signOut(this.requireContext())
+                val intent = Intent(this.requireContext(), AuthenticationActivity::class.java)
+                startActivity(intent)
+                requireActivity().finish()
             }
         }
         return super.onOptionsItemSelected(item)
