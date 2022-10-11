@@ -4,6 +4,7 @@ package com.example.project4.locationreminders.savereminder.selectreminderlocati
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import org.koin.android.ext.android.inject
 import kotlin.properties.Delegates
@@ -80,6 +82,25 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         map = googleMap
         // check user permissions and get user current location
         enableLocation()
+        seMapStyle(map)
+    }
+
+    // set custom map style
+    private fun seMapStyle(map: GoogleMap) {
+        try {
+            val success = map.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    this.requireContext(),
+                    R.raw.map_style
+                )
+            )
+
+            if(!success) {
+                Log.e(TAG, "Style parsing failed")
+            }
+        } catch (e : Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style error :", e)
+        }
     }
 
     // get user location and move the camera to it
