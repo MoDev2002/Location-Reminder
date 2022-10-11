@@ -22,6 +22,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import org.koin.android.ext.android.inject
 import kotlin.properties.Delegates
 
@@ -51,11 +52,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
-        // TODO: add the map setup implementation
+        // Initialize the map and call onMapReady()
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        // TODO: zoom to the user location after taking his permission
+
 
 
 
@@ -77,38 +78,53 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        // check user permissions and get user current location
         enableLocation()
-
-        // set zoom level
-        val zoomLevel = 15f
-
-        var userLatLng = LatLng(0.0, 0.0)
-
-        Log.i(TAG, "latitude = ${userLatLng.latitude}, long = ${userLatLng.longitude}")
-        // move camera to user location
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, zoomLevel))
-
     }
 
+    // get user location and move the camera to it
+    @SuppressLint("MissingPermission")
+    private fun addUserLocation() {
+        // fusedLocationProvider gets the current user location
+        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.requireContext())
+        val locationTask = fusedLocationProviderClient.lastLocation
 
+        // camera zoom level
+        val zoomLevel = 20f
 
+        locationTask.addOnCompleteListener(this.requireActivity()) { task ->
+            if(task.isSuccessful) {
+                val result = task.result
+                // inside run block so the app waits for the process to finish
+                result.run {
+                    val userLatLng = LatLng(latitude, longitude)
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, zoomLevel))
+                    map.addMarker(MarkerOptions().position(userLatLng))
+                }
+            }
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
     }
 
+    // Change map type upon user selection
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        // TODO: Change the map type based on the user's selection.
         R.id.normal_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_NORMAL
             true
         }
         R.id.hybrid_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_HYBRID
             true
         }
         R.id.satellite_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_SATELLITE
             true
         }
         R.id.terrain_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_TERRAIN
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -132,24 +148,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_LOCATION_PERMISSION
             )
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun addUserLocation() {
-        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.requireContext())
-        val locationTask = fusedLocationProviderClient.lastLocation
-
-        val zoomLevel = 20f
-
-        locationTask.addOnCompleteListener(this.requireActivity()) { task ->
-            if(task.isSuccessful) {
-                val result = task.result
-                result.run {
-                    val userLatLng = LatLng(latitude, longitude)
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, zoomLevel))
-                }
-            }
         }
     }
 
