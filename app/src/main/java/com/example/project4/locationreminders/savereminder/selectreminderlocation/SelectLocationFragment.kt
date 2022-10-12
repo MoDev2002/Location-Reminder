@@ -11,22 +11,24 @@ import android.view.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.navigateUp
 import com.example.project4.R
-import com.example.project4.databinding.FragmentSelectLocationBinding
 import com.example.project4.base.BaseFragment
+import com.example.project4.databinding.FragmentSelectLocationBinding
 import com.example.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.example.project4.utils.setDisplayHomeAsUpEnabled
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import org.koin.android.ext.android.inject
-import kotlin.properties.Delegates
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -38,9 +40,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var map : GoogleMap
     private val REQUEST_LOCATION_PERMISSION = 1
     private val TAG = SelectLocationFragment::class.java.simpleName
-
-    // fused location provider to get the user location
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -58,23 +57,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-
-
-
-
-
-        // TODO: add style to the map
-        // TODO: put a marker to location that the user selected
-        // TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
+        binding.saveLocationBtn.setOnClickListener {
+            onLocationSelected()
+        }
 
         return binding.root
     }
 
+    // save the location info and navigate back to the reminders screen
     private fun onLocationSelected() {
-        //        TODO: When the user confirms on the selected location,
-        //         send back the selected location details to the view model
-        //         and navigate back to the previous fragment to save the reminder and add the geofence
+        if(_viewModel.validateLocation()) {
+            findNavController().navigateUp()
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -83,6 +77,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         // check user permissions and get user current location
         enableLocation()
         seMapStyle(map)
+        setPoiClick(map)
+    }
+
+    // place a marker when the user selects a POI and save it's data to the viewModel
+    private fun setPoiClick(map: GoogleMap) {
+        map.setOnPoiClickListener { poi ->
+            val poiMarker =map.addMarker(
+                MarkerOptions()
+                    .position(poi.latLng)
+                    .title(poi.name)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
+            )
+            poiMarker?.showInfoWindow()
+            _viewModel.saveSelectedLocation(poi.name, poi.latLng.latitude, poi.latLng.longitude)
+        }
     }
 
     // set custom map style
@@ -126,31 +135,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.map_options, menu)
-    }
-
-    // Change map type upon user selection
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.normal_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_NORMAL
-            true
-        }
-        R.id.hybrid_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_HYBRID
-            true
-        }
-        R.id.satellite_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_SATELLITE
-            true
-        }
-        R.id.terrain_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_TERRAIN
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
-    }
-
     // Check that the location permission is granted
     private fun isPermissionGranted(): Boolean = ContextCompat.checkSelfPermission(
         this.requireContext(),
@@ -186,5 +170,28 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.map_options, menu)
+    }
 
+    // Change map type upon user selection
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.normal_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_NORMAL
+            true
+        }
+        R.id.hybrid_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_HYBRID
+            true
+        }
+        R.id.satellite_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            true
+        }
+        R.id.terrain_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_TERRAIN
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
 }

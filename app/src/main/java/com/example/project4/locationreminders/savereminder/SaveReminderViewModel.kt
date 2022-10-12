@@ -79,4 +79,20 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         }
         return true
     }
+
+    // validate if the user selected a location on the map
+    fun validateLocation() : Boolean {
+        if(reminderSelectedLocationStr.value == null || latitude.value == null || longitude.value == null) {
+            showSnackBarInt.value = R.string.err_select_location
+            return false
+        }
+        return true
+    }
+
+    // Save the data taken from the map
+    fun saveSelectedLocation(location : String, locationLatitude : Double, locationLongitude : Double) {
+        reminderSelectedLocationStr.value = location
+        latitude.value = locationLatitude
+        longitude.value = locationLongitude
+    }
 }
