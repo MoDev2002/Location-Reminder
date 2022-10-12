@@ -12,8 +12,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.navigateUp
 import com.example.project4.R
 import com.example.project4.base.BaseFragment
 import com.example.project4.databinding.FragmentSelectLocationBinding
