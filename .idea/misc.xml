@@ -3,10 +3,16 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/layout/activity_authentication.xml" value="0.1" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/drawable/ic_baseline_login_24.xml" value="0.113" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/layout/activity_authentication.xml" value="0.25" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/layout/activity_reminder_description.xml" value="0.1645512239347235" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/layout/fragment_reminders.xml" value="0.19689119170984457" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/layout/fragment_save_reminder.xml" value="0.19487179487179487" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/layout/fragment_select_location.xml" value="0.25" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/layout/it_reminder.xml" value="0.25" />
       </map>
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="11" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK" />
 </project>
