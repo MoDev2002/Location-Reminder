@@ -3,7 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/drawable/ic_add.xml" value="0.173" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/drawable/ic_baseline_check_24.xml" value="0.113" />
         <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/drawable/ic_baseline_login_24.xml" value="0.113" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/drawable/ic_location.xml" value="0.1" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/drawable/ic_no_data.xml" value="0.113" />
+        <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/drawable/ic_save.xml" value="0.113" />
         <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/layout/activity_authentication.xml" value="0.25" />
         <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/layout/activity_reminder_description.xml" value="0.1645512239347235" />
         <entry key="..\:/Users/tamer/OneDrive/Desktop/Learning/Android/Projects/project4/app/src/main/res/layout/fragment_reminders.xml" value="0.19689119170984457" />
