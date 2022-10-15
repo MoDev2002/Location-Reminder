@@ -8,12 +8,14 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
@@ -32,13 +34,14 @@ import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
+
 class SaveReminderFragment : BaseFragment() {
 
     companion object {
         // permission codes to activate location permissions
-        private const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33
-        private const val REQUEST_FOREGROUND_ONLY_PERMISSION_RESULT_CODE = 34
-        private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
+        private const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 34
+        private const val REQUEST_FOREGROUND_ONLY_PERMISSION_RESULT_CODE = 33
+        private const val REQUEST_TURN_DEVICE_LOCATION_ON = 35
         private const val LOCATION_PERMISSION_INDEX = 0
         private const val BACKGROUND_LOCATION_PERMISSION_INDEX = 1
 
@@ -69,7 +72,11 @@ class SaveReminderFragment : BaseFragment() {
             this.requireContext(),
             0,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            if(Build.VERSION_CODES.M <= Build.VERSION.SDK_INT)  {
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
         )
     }
 
@@ -126,8 +133,8 @@ class SaveReminderFragment : BaseFragment() {
     // Check if foreground and background permissions are approved
     @TargetApi(29)
     private fun foregroundAndBackgroundLocationPermissionApproved(): Boolean {
-        val foregroundApproved =
-            (PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
+        val foregroundApproved = (
+                PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
                 this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ))
 
@@ -145,10 +152,11 @@ class SaveReminderFragment : BaseFragment() {
     // request foreground and background permissions from user
     @TargetApi(29)
     private fun requestForegroundAndBackgroundLocationPermission() {
-        if (foregroundAndBackgroundLocationPermissionApproved())
+        if (foregroundAndBackgroundLocationPermissionApproved()) {
             return
+        }
 
-        var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
 
         val requestCode = when {
             runningQOrLater -> {
@@ -214,10 +222,10 @@ class SaveReminderFragment : BaseFragment() {
                     checkDeviceLocationSettingsAndStartGeofence()
                 }.show()
             }
-            locationSettingsRequestTask.addOnCompleteListener {
-                if (it.isSuccessful) {
-                    addGeofence()
-                }
+        }
+        locationSettingsRequestTask.addOnCompleteListener {
+            if (it.isSuccessful) {
+                addGeofence()
             }
         }
     }
@@ -242,6 +250,7 @@ class SaveReminderFragment : BaseFragment() {
                 _viewModel.saveReminder(reminderData)
             }
             addOnFailureListener {
+                it.printStackTrace()
                 _viewModel.showSnackBarInt.value = R.string.error_adding_geofence
             }
         }
