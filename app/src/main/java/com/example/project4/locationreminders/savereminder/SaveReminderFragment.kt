@@ -93,6 +93,8 @@ class SaveReminderFragment : BaseFragment() {
 
         geofencingClient = LocationServices.getGeofencingClient(this.requireActivity())
 
+        requestForegroundAndBackgroundLocationPermission()
+
         return binding.root
     }
 
@@ -156,7 +158,8 @@ class SaveReminderFragment : BaseFragment() {
             return
         }
 
-        var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+        var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION)
 
         val requestCode = when {
             runningQOrLater -> {
@@ -237,11 +240,11 @@ class SaveReminderFragment : BaseFragment() {
             .setRequestId(reminderData.id)
             .setCircularRegion(reminderData.latitude!!, reminderData.longitude!!, GEOFENCE_RADIUS)
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
-            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
             .build()
 
         val geofencingRequest = GeofencingRequest.Builder()
-            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER or GeofencingRequest.INITIAL_TRIGGER_EXIT)
             .addGeofence(geofence)
             .build()
 
