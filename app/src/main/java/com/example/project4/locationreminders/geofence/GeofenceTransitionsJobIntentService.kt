@@ -41,7 +41,7 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
 
         // check if the geofence has errors
-        if(geofencingEvent!!.hasError()) {
+        if(geofencingEvent.hasError()) {
             Log.i(TAG, "geofence event error")
             return
         }
@@ -49,7 +49,7 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
         // if the transition is ENTER send notification
         if(geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
             Log.i(TAG, "sending notification")
-            sendNotification(geofencingEvent.triggeringGeofences!!)
+            sendNotification(geofencingEvent.triggeringGeofences)
         }
     }
 
