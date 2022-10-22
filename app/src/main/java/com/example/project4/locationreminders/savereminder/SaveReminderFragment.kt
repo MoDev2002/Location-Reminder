@@ -3,7 +3,10 @@ package com.example.project4.locationreminders.savereminder
 import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
+import android.app.Activity
+import android.app.AlertDialog
 import android.app.PendingIntent
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -24,6 +27,7 @@ import com.example.project4.R
 import com.example.project4.databinding.FragmentSaveReminderBinding
 import com.example.project4.base.BaseFragment
 import com.example.project4.base.NavigationCommand
+import com.example.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.example.project4.locationreminders.geofence.GeofenceBroadcastReceiver.Companion.ACTION_GEOFENCE_EVENT
 import com.example.project4.locationreminders.geofence.GeofenceTransitionsJobIntentService
 import com.example.project4.locationreminders.reminderslist.ReminderDataItem
@@ -41,12 +45,13 @@ class SaveReminderFragment : BaseFragment() {
         // permission codes to activate location permissions
         private const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 34
         private const val REQUEST_FOREGROUND_ONLY_PERMISSION_RESULT_CODE = 33
+        private const val REQUEST_BACKGROUND_ONLY_PERMISSION_RESULT_CODE = 36
         private const val REQUEST_TURN_DEVICE_LOCATION_ON = 35
         private const val LOCATION_PERMISSION_INDEX = 0
         private const val BACKGROUND_LOCATION_PERMISSION_INDEX = 1
 
         // geofence circular radius in meters
-        private const val GEOFENCE_RADIUS = 100f
+        private const val GEOFENCE_RADIUS = 500f
 
         private const val TAG = "SaveReminderFragment"
     }
@@ -62,17 +67,17 @@ class SaveReminderFragment : BaseFragment() {
 
     // Determine if the device is running on version Q or above
     private val runningQOrLater =
-        android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.Q
+        Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
 
     // PendingIntent for broadcast receiver to handle geofence request
     private val geofencePendingIntent: PendingIntent by lazy {
-        val intent = Intent(this.requireContext(), GeofenceTransitionsJobIntentService::class.java)
+        val intent = Intent(this.context as Activity, GeofenceBroadcastReceiver::class.java)
         intent.action = ACTION_GEOFENCE_EVENT
         PendingIntent.getBroadcast(
-            this.requireContext(),
+            this.context,
             0,
             intent,
-            if(Build.VERSION_CODES.M <= Build.VERSION.SDK_INT)  {
+            if (Build.VERSION_CODES.M <= Build.VERSION.SDK_INT) {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             } else {
                 PendingIntent.FLAG_UPDATE_CURRENT
@@ -94,6 +99,7 @@ class SaveReminderFragment : BaseFragment() {
         geofencingClient = LocationServices.getGeofencingClient(this.requireActivity())
 
         requestForegroundAndBackgroundLocationPermission()
+        requestBackgroundLocationPermission()
 
         return binding.root
     }
@@ -121,6 +127,7 @@ class SaveReminderFragment : BaseFragment() {
                     checkDeviceLocationSettingsAndStartGeofence()
                 } else {
                     requestForegroundAndBackgroundLocationPermission()
+                    requestBackgroundLocationPermission()
                 }
             }
         }
@@ -137,8 +144,8 @@ class SaveReminderFragment : BaseFragment() {
     private fun foregroundAndBackgroundLocationPermissionApproved(): Boolean {
         val foregroundApproved = (
                 PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
-                this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-            ))
+                    this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+                ))
 
         val backgroundApproved =
             if (runningQOrLater) {
@@ -158,8 +165,10 @@ class SaveReminderFragment : BaseFragment() {
             return
         }
 
-        var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION)
+        var permissionsArray = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
 
         val requestCode = when {
             runningQOrLater -> {
@@ -190,7 +199,7 @@ class SaveReminderFragment : BaseFragment() {
                     grantResults[BACKGROUND_LOCATION_PERMISSION_INDEX] ==
                     PackageManager.PERMISSION_DENIED)
         ) {
-           _viewModel.showSnackBarInt.value = R.string.permission_denied_explanation
+            _viewModel.showSnackBarInt.value = R.string.permission_denied_explanation
         } else {
             checkDeviceLocationSettingsAndStartGeofence()
         }
@@ -231,6 +240,33 @@ class SaveReminderFragment : BaseFragment() {
                 addGeofence()
             }
         }
+    }
+
+    private fun requestBackgroundLocationPermission() {
+            if (foregroundAndBackgroundLocationPermissionApproved() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        this.requireActivity(),
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    )
+                ) {
+                    AlertDialog.Builder(this.requireContext())
+                        .setTitle("Background Permissions Needed")
+                        .setMessage("Background location needed to use geofence Choose \"Allow All The Time\"")
+                        .setPositiveButton("OK") { _, _ ->
+                            ActivityCompat.requestPermissions(
+                                this.requireActivity(),
+                                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                                REQUEST_BACKGROUND_ONLY_PERMISSION_RESULT_CODE
+                            )
+                        }
+                        .setNegativeButton("CANCEL") { dialog, which ->
+                            _viewModel.showSnackBar.value = "Please Allow the permissions"
+                        }
+                        .create().show()
+                }
+            } else {
+                requestForegroundAndBackgroundLocationPermission()
+            }
     }
 
     // add geofence

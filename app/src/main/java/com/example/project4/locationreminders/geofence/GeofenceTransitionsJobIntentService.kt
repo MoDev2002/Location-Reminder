@@ -2,6 +2,7 @@ package com.example.project4.locationreminders.geofence
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.app.JobIntentService
 import com.google.android.gms.location.Geofence
 import com.example.project4.locationreminders.data.ReminderDataSource
@@ -14,6 +15,7 @@ import kotlinx.coroutines.*
 import org.koin.android.ext.android.inject
 import kotlin.coroutines.CoroutineContext
 
+const val TAG = "IntentService"
 class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
     private var coroutineJob: Job = Job()
@@ -35,18 +37,19 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
     // Handle geofencing events and send notifications
     override fun onHandleWork(intent: Intent) {
 
+        Log.i(TAG, "onHandleWork")
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
 
         // check if the geofence has errors
         if(geofencingEvent!!.hasError()) {
+            Log.i(TAG, "geofence event error")
             return
         }
 
         // if the transition is ENTER send notification
         if(geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-            if(geofencingEvent.triggeringGeofences!!.isNotEmpty()) {
-                sendNotification(geofencingEvent.triggeringGeofences!!)
-            }
+            Log.i(TAG, "sending notification")
+            sendNotification(geofencingEvent.triggeringGeofences!!)
         }
     }
 
