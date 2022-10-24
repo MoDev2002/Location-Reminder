@@ -13,10 +13,12 @@ import kotlinx.coroutines.test.resumeDispatcher
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.stopKoin
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -37,6 +39,11 @@ class RemindersListViewModelTest {
             ApplicationProvider.getApplicationContext(),
             reminderFakeDataSource
         )
+    }
+
+    @After
+    fun tearDown() {
+        stopKoin()
     }
 
     @Test
