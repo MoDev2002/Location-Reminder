@@ -7,9 +7,17 @@ import com.example.project4.locationreminders.data.dto.Result
 //Use FakeDataSource that acts as a test double to the LocalDataSource
 class FakeDataSource(var reminders : MutableList<ReminderDTO>? = mutableListOf()) : ReminderDataSource {
 
-//    TODO: Create a fake data source to act as a double to the real data source
+    // Error Handling
+    private var shouldReturnError = false
+
+    fun setReturnError(value : Boolean) {
+        shouldReturnError = value
+    }
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
+        if(shouldReturnError) {
+            return Result.Error("Test Exception")
+        }
         reminders?.let {
             return Result.Success(ArrayList(it))
         }
@@ -23,7 +31,7 @@ class FakeDataSource(var reminders : MutableList<ReminderDTO>? = mutableListOf()
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
         val reminder = reminders?.find { it.id == id }
         return try {
-            if(reminder == null) {
+            if(reminder == null || shouldReturnError) {
                 Result.Error("No reminder")
             } else {
                 Result.Success(reminder)
