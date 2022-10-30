@@ -76,6 +76,20 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         enableLocation()
         seMapStyle(map)
         setPoiClick(map)
+        setMapClick(map)
+    }
+
+    private fun setMapClick(map: GoogleMap) {
+        map.setOnMapClickListener { latLng ->
+            map.addMarker(
+                MarkerOptions()
+                    .position(latLng)
+                    .title(getString(R.string.dropped_pin))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+            )
+
+            _viewModel.saveSelectedLocation(getString(R.string.dropped_pin), latLng.latitude, latLng.longitude)
+        }
     }
 
     // place a marker when the user selects a POI and save it's data to the viewModel
@@ -127,7 +141,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 result.run {
                     val userLatLng = LatLng(latitude, longitude)
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, zoomLevel))
-                    map.addMarker(MarkerOptions().position(userLatLng))
                 }
             }
         }

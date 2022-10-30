@@ -10,6 +10,8 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -48,8 +50,6 @@ class ReminderListFragmentTest : AutoCloseKoinTest() {
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
-
-    private val dataBindingIdlingResource = DataBindingIdlingResource()
 
     @Before
     fun init() {
@@ -100,5 +100,15 @@ class ReminderListFragmentTest : AutoCloseKoinTest() {
         verify(navController).navigate(
             ReminderListFragmentDirections.toSaveReminder()
         )
+    }
+
+    @Test
+    fun reminderListFragment_emptyFragment() {
+        // Given a Reminder Fragment
+        val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
+
+        // When The data source is empty
+        // Then no data view is shown
+        onView(withId(R.id.noDataTextView)).check(matches(isDisplayed()))
     }
 }
