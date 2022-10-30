@@ -77,8 +77,8 @@ class SaveReminderFragment : BaseFragment() {
             this.context,
             0,
             intent,
-            if (Build.VERSION_CODES.M <= Build.VERSION.SDK_INT) {
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             } else {
                 PendingIntent.FLAG_UPDATE_CURRENT
             }

@@ -60,7 +60,7 @@ ext {
     robolectricVersion = '4.8.1'
     androidXTestExtKotlinRunnerVersion = '1.1.3'
     archTestingVersion = '2.1.0'
-    playServicesVersion = '17.0.0'
+    playServicesVersion = '21.0.0'
     playMapsServicesVersion = '18.1.0'
     hamcrestVersion = '2.2'
     androidXTestRulesVersion = '1.4.1-beta01'
