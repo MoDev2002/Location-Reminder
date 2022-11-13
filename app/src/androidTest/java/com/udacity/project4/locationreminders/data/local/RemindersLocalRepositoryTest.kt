@@ -47,6 +47,17 @@ class RemindersLocalRepositoryTest {
     }
 
     @Test
+    fun getReminder_reminderNotFound() = runTest {
+        // Given the reminder Repository
+        // When getting a reminder that doesn't exist
+        val result = repository.getReminder("id1")
+
+        // Then the result is Error
+        result as Result.Error
+        assertThat(result.message, `is`("Reminder not found!"))
+    }
+
+    @Test
     fun saveReminder_retrieveReminder() = runTest {
         // Given a Reminder saved to the repository
         val reminder = ReminderDTO("title", "description", "location", 62.0, 95.0)
