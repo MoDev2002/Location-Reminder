@@ -8,9 +8,9 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
@@ -159,11 +159,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             map.isMyLocationEnabled = true
             addUserLocation()
         } else {
-            ActivityCompat.requestPermissions(
-                this.requireActivity(),
+            requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_LOCATION_PERMISSION
             )
+            _viewModel.showSnackBar.value = "Please accept location permissions to use the app"
         }
     }
 

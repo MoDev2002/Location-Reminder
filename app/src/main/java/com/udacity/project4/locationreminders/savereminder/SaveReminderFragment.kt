@@ -90,8 +90,6 @@ class SaveReminderFragment : BaseFragment() {
 
         geofencingClient = LocationServices.getGeofencingClient(this.requireActivity())
 
-        requestForegroundAndBackgroundLocationPermission()
-        requestBackgroundLocationPermission()
 
         return binding.root
     }
@@ -115,11 +113,12 @@ class SaveReminderFragment : BaseFragment() {
             reminderData = ReminderDataItem(title, description, location, latitude, longitude)
 
             if (_viewModel.validateEnteredData(reminderData)) {
+                requestBackgroundLocationPermission()
                 if (foregroundAndBackgroundLocationPermissionApproved()) {
                     checkDeviceLocationSettingsAndStartGeofence()
                 } else {
                     requestForegroundAndBackgroundLocationPermission()
-                    requestBackgroundLocationPermission()
+
                 }
             }
         }
@@ -170,8 +169,7 @@ class SaveReminderFragment : BaseFragment() {
             else -> REQUEST_FOREGROUND_ONLY_PERMISSION_RESULT_CODE
         }
 
-        ActivityCompat.requestPermissions(
-            this.requireActivity(),
+        requestPermissions(
             permissionsArray,
             requestCode
         )
@@ -210,10 +208,13 @@ class SaveReminderFragment : BaseFragment() {
         locationSettingsRequestTask.addOnFailureListener { exception ->
             if (exception is ResolvableApiException && resolve) {
                 try {
-                    exception.startResolutionForResult(
-                        this.requireActivity(),
-                        REQUEST_TURN_DEVICE_LOCATION_ON
-                    )
+                    startIntentSenderForResult(
+                        exception.resolution.intentSender,
+                        REQUEST_TURN_DEVICE_LOCATION_ON,
+                        null, 0, 0, 0, null
+                   )
+
+
                 } catch (e: IntentSender.SendIntentException) {
                     Log.d(TAG, "Error getting location settings: " + e.message)
                 }
