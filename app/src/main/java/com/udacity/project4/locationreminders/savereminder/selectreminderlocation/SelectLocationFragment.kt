@@ -6,18 +6,19 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.*
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.location.*
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -33,12 +34,26 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSelectLocationBinding
+    private lateinit var locationCallback: LocationCallback
 
     // Map and Permission ID
     private lateinit var map : GoogleMap
     private val REQUEST_LOCATION_PERMISSION = 1
     private val TAG = SelectLocationFragment::class.java.simpleName
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(lastLocations: LocationResult) {
+                val lastLocation = lastLocations.lastLocation
+                if (lastLocation != null){
+                    val userLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 20f))
+                }
+            }
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -138,9 +153,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             if(task.isSuccessful) {
                 val result = task.result
                 // inside run block so the app waits for the process to finish
-                result.run {
-                    val userLatLng = LatLng(latitude, longitude)
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, zoomLevel))
+                if(result == null) {
+                    fusedLocationProviderClient.requestLocationUpdates(
+                        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 100)
+                            .setMaxUpdates(1)
+                            .build(),
+                        locationCallback,
+                        Looper.getMainLooper()
+                    )
+                } else {
+                    result.run {
+                        val userLatLng = LatLng(latitude, longitude)
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, zoomLevel))
+                    }
                 }
             }
         }
@@ -163,7 +188,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_LOCATION_PERMISSION
             )
-            _viewModel.showSnackBar.value = "Please accept location permissions to use the app"
         }
     }
 
@@ -176,6 +200,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if(requestCode == REQUEST_LOCATION_PERMISSION) {
             if(grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 enableLocation()
+            } else {
+                _viewModel.showSnackBar.value = "Please accept location permissions to use the app"
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

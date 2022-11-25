@@ -16,7 +16,7 @@ class FakeDataSource(var reminders : MutableList<ReminderDTO> = mutableListOf())
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
         return try {
             if (shouldReturnError) {
-                throw Exception("Reminders not found")
+                return Result.Error("Couldn't retrieve reminders")
             }
             Result.Success(ArrayList(reminders))
         } catch (ex : Exception) {

@@ -54,7 +54,7 @@ class RemindersListViewModelTest {
         viewModel.loadReminders()
 
         // Then the snackbar shows error
-        assertThat(viewModel.showSnackBar.getOrAwaitValue(), `is`("Test Exception"))
+        assertThat(viewModel.showSnackBar.getOrAwaitValue(), `is`("Couldn't retrieve reminders"))
     }
 
     @Test

@@ -45,9 +45,6 @@ class RemindersActivityTest :
     AutoCloseKoinTest() {
     // Extended Koin Test - embed autoclose @after method to close Koin after every test
 
-    @get:Rule
-    var activityScenarioRule = ActivityScenarioRule(RemindersActivity::class.java)
-
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
 
