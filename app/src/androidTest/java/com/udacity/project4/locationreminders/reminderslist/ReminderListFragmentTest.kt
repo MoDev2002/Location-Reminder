@@ -39,10 +39,6 @@ import org.mockito.Mockito.verify
 @MediumTest
 class ReminderListFragmentTest : AutoCloseKoinTest() {
 
-//    TODO: test the navigation of the fragments.
-//    TODO: test the displayed data on the UI.
-//    TODO: add testing for the error messages.
-
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
 

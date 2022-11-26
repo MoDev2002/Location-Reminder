@@ -23,6 +23,7 @@ import com.udacity.project4.locationreminders.reminderslist.RemindersListViewMod
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorActivity
+import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.not
@@ -90,11 +91,13 @@ class RemindersActivityTest :
     @Before
     fun registerIdlingResources() {
         IdlingRegistry.getInstance().register(dataBindingIdlingResource)
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
     }
 
     @After
     fun unregisterIdlingResources() {
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
     }
 
 
